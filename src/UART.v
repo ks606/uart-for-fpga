@@ -42,7 +42,7 @@ module UART #(
 /********************************************************************************/
 // Parameters section
 /********************************************************************************/   
-	localparam 				BIT_NUM = PARITY + 10;
+	localparam 				BIT_NUM = 10 + PARITY;
 	localparam 				FREQ_DIV = CLK_FREQ/BAUD_RATE; 	// number of frequency pulses in 1 transmitted bit
 	localparam 				BDCLK_COEF = (FREQ_DIV/2 - 1); 	// maximal coefficient of baud clock counter
 	

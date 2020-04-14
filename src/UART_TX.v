@@ -18,7 +18,7 @@ module UART_TX #(
     parameter          		BAUD_RATE = 9_600, 
     parameter          		PARITY = 1, 
     parameter          		DI_WIDTH = 8, 
-    parameter          		BIT_NUM = 10
+    parameter          		BIT_NUM = 10 + PARITY
 	
 )(
 	input 					clk, 
@@ -46,7 +46,7 @@ module UART_TX #(
 	wire 					TXPARITY;  		// parity value
 	reg [3:0] 				TXBIT_CNT;    	// transmitted bit counter
 	reg 					TRANSMIT_ON;  	// transmitting flag
-	reg [7:0] 				SHIFT_REG;   	// shift register
+	reg [7:0] 				DIN_REG;   	// shift register
 	reg 					RFD_REG;
 	reg 					TX_OUT;
 
@@ -95,31 +95,31 @@ module UART_TX #(
 // shift register  
 	always @ (posedge clk or negedge rst) begin
 		if (!rst) begin 
-			SHIFT_REG <= 0; 
+			DIN_REG <= 0; 
 		end
 		//else if (din_vld && RFD_REG) begin 
 		else if (din_vld) begin 
-			SHIFT_REG <= din; 
+			DIN_REG <= din; 
 		end
     end
     
 // parity calculation
 	assign PARITY_ON = PARITY;
-	assign TXPARITY = ^ SHIFT_REG;	//SHIFT_REG [7] ^ ... ^ SHIFT_REG [0];
+	assign TXPARITY = ^ DIN_REG;	//DIN_REG [7] ^ ... ^ DIN_REG [0];
   
 // TX output   
 	always @ (*) begin
 		if (PARITY_ON) begin
 			case (TXBIT_CNT)
 				4'd10:		TX_OUT = START; 
-				4'd9:  		TX_OUT = SHIFT_REG [7];
-				4'd8:  		TX_OUT = SHIFT_REG [6];
-				4'd7:  		TX_OUT = SHIFT_REG [5];
-				4'd6:		TX_OUT = SHIFT_REG [4];
-				4'd5:		TX_OUT = SHIFT_REG [3];
-				4'd4:		TX_OUT = SHIFT_REG [2];
-				4'd3:		TX_OUT = SHIFT_REG [1];
-				4'd2:		TX_OUT = SHIFT_REG [0];
+				4'd9:  		TX_OUT = DIN_REG [0];
+				4'd8:  		TX_OUT = DIN_REG [1];
+				4'd7:  		TX_OUT = DIN_REG [2];
+				4'd6:		TX_OUT = DIN_REG [3];
+				4'd5:		TX_OUT = DIN_REG [4];
+				4'd4:		TX_OUT = DIN_REG [5];
+				4'd3:		TX_OUT = DIN_REG [6];
+				4'd2:		TX_OUT = DIN_REG [7];
 				4'd1:		TX_OUT = TXPARITY;
 				4'd0:		TX_OUT = STOP;
 				default:	TX_OUT = IDLE;
@@ -128,14 +128,14 @@ module UART_TX #(
 		else begin
 			case (TXBIT_CNT)
 				4'd9:		TX_OUT = START;
-				4'd8:		TX_OUT = SHIFT_REG [7];
-				4'd7: 		TX_OUT = SHIFT_REG [6];
-				4'd6: 		TX_OUT = SHIFT_REG [5];
-				4'd5: 		TX_OUT = SHIFT_REG [4];
-				4'd4: 		TX_OUT = SHIFT_REG [3];
-				4'd3: 		TX_OUT = SHIFT_REG [2];
-				4'd2: 		TX_OUT = SHIFT_REG [1];
-				4'd1: 		TX_OUT = SHIFT_REG [0];
+				4'd8:		TX_OUT = DIN_REG [0];
+				4'd7: 		TX_OUT = DIN_REG [1];
+				4'd6: 		TX_OUT = DIN_REG [2];
+				4'd5: 		TX_OUT = DIN_REG [3];
+				4'd4: 		TX_OUT = DIN_REG [4];
+				4'd3: 		TX_OUT = DIN_REG [5];
+				4'd2: 		TX_OUT = DIN_REG [6];
+				4'd1: 		TX_OUT = DIN_REG [7];
 				4'd0: 		TX_OUT = STOP; 
 				default: 	TX_OUT = IDLE; 
 			endcase

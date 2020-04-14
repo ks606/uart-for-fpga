@@ -1,28 +1,29 @@
 `timescale 1 ns/1 ps
 module UART_TB #(
-	parameter				CLK_FREQ = 100_000_000, // input frequency, Hz
-    parameter				BAUD_RATE = 921_600,    // baud rate
-    parameter				PARITY = 0,             // 1 - on (even), 0 - off
-    parameter				DI_WIDTH = 8,           // width of input data
-    parameter				DO_WIDTH = 8,           // width of output data
-    parameter				M_TAPS = 3				// taps of majority element
+	parameter				CLK1_FREQ = 100_000_000,	// input frequency, Hz
+	parameter				CLK2_FREQ = 100_000_000,	// input frequency, Hz
+    parameter				BAUD_RATE = 9_600,    		// baud rate
+    parameter				PARITY = 0,             	// 1 - on (even), 0 - off
+    parameter				DI_WIDTH = 8,           	// width of input data
+    parameter				DO_WIDTH = 8,           	// width of output data
+    parameter				M_TAPS = 3					// taps of majority element
 	
 )(
 );
 	logic 					UART1_CLK = 0;               
 	logic 					UART1_RST = 0;
-	logic 					UART1_TX;          		// transmitted data
-	logic 					UART1_RX;            	// received data
+	logic 					UART1_TX;          			// transmitted data
+	logic 					UART1_RX;            		// received data
 	
-	logic 					UART1_RFD;          	// request for data
-	logic 					UART1_DIN_VLD = 0;    	// valid signal of input data 
-	logic [DI_WIDTH-1:0] 	UART1_DIN = 0;        	// input data  
-	logic [DO_WIDTH-1:0] 	UART1_DOUT;          	// output data
-	logic 					UART1_DOUT_VLD;       	// valid signal of output data
-	logic 					UART1_ERR;          	// error signal
+	logic 					UART1_RFD;          		// request for data
+	logic 					UART1_DIN_VLD = 0;    		// valid signal of input data 
+	logic [DI_WIDTH-1:0] 	UART1_DIN = 0;        		// input data  
+	logic [DO_WIDTH-1:0] 	UART1_DOUT;          		// output data
+	logic 					UART1_DOUT_VLD;       		// valid signal of output data
+	logic 					UART1_ERR;          		// error signal
 
 	UART #(
-		.CLK_FREQ			(CLK_FREQ),
+		.CLK_FREQ			(CLK1_FREQ),
 		.BAUD_RATE			(BAUD_RATE),
 		.PARITY				(PARITY),
 		.DI_WIDTH			(DI_WIDTH),
@@ -61,7 +62,7 @@ module UART_TB #(
 	logic 					UART2_ERR;          	// error signal
 	
 	UART #(
-		.CLK_FREQ			(CLK_FREQ),
+		.CLK_FREQ			(CLK2_FREQ),
 		.BAUD_RATE			(BAUD_RATE),
 		.PARITY				(PARITY),
 		.DI_WIDTH			(DI_WIDTH),
@@ -95,6 +96,9 @@ module UART_TB #(
 		//@ (!UART1_RFD) UART1_DIN_VLD = 0; UART1_DIN = 8'd0;
     end
   
-	
+	initial begin
+		@ (UART2_RFD) UART2_DIN_VLD = 1; UART2_DIN = 8'd200;
+		//@ (!UART1_RFD) UART1_DIN_VLD = 0; UART1_DIN = 8'd0;
+    end
   
 endmodule

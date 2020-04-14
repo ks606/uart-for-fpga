@@ -42,7 +42,7 @@ module UART_RX #(
 	wire 					PARITY_ON;
 	wire 					RXPARITY;
 	wire					MJE_OUT;		// output of majority element
-	reg [DO_WIDTH-1:0] 		DATA_REG;  		// register of input data
+	reg [DO_WIDTH-1:0] 		RX_REG;  		// register of input data
 	reg [3:0] 				RXBIT_CNT;      // transmitted bit counter
 	reg 					RECEIVE_ON;
 	reg [DO_WIDTH-1:0] 		DOUT_REG;
@@ -102,7 +102,7 @@ module UART_RX #(
     
 // parity calculation
 	assign PARITY_ON = PARITY;
-	assign RXPARITY = ^ DATA_REG; //DATA_REG [7] ^ ... ^ DATA_REG [0];
+	assign RXPARITY = ^ RX_REG; //RX_REG [7] ^ ... ^ RX_REG [0];
 
 // error signal                    
 	always @ (posedge clk or negedge rst) begin
@@ -110,17 +110,17 @@ module UART_RX #(
 			ERR_OUT_REG <= 0; 
 		end
 		else if (RXBIT_CNT == 0) begin 
-			ERR_OUT_REG <= (!DATA_REG [7] ^ RXPARITY); 
+			ERR_OUT_REG <= ((!RX_REG[7] ^ RXPARITY) & PARITY_ON); 
 		end
     end
   
 // data receiving
 	always @ (posedge baudclk or negedge rst) begin
 		if (!rst) begin 
-			DATA_REG <= 0; 
+			RX_REG <= 0; 
 		end
 		else begin 
-			DATA_REG <= {DATA_REG[6:0], MJE_OUT}; 
+			RX_REG <= {MJE_OUT, RX_REG[7:1]};
 		end
     end
 
@@ -131,7 +131,7 @@ module UART_RX #(
 		end
 		//else if ((RXBIT_CNT == 1 + PARITY) && (ERR_OUT_REG == 0)) begin
 		else if (RXBIT_CNT == 1 + PARITY) begin
-			DOUT_REG <= DATA_REG;
+			DOUT_REG <= RX_REG;
 			DOUT_VLD_REG <= 1'b1; 
         end
 		else begin 
