@@ -46,7 +46,7 @@ module UART_TX #(
 	wire 					TXPARITY;  		// parity value
 	reg [3:0] 				TXBIT_CNT;    	// transmitted bit counter
 	reg 					TRANSMIT_ON;  	// transmitting flag
-	reg [7:0] 				DIN_REG;   	// shift register
+	reg [7:0] 				DIN_REG;   		// shift register
 	reg 					RFD_REG;
 	reg 					TX_OUT;
 

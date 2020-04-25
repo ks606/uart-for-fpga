@@ -1,3 +1,5 @@
+`define _DEBUG
+
 `timescale 1 ns/1 ps
 module UART_TB #(
 	parameter				CLK1_FREQ = 100_000_000,	// input frequency, Hz
@@ -33,11 +35,13 @@ module UART_TB #(
 	) _UART1 (
 		.clk				(UART1_CLK),
 		.rst				(UART1_RST),
+		
 		// TX interface
 		.rfd				(UART1_RFD),
 		.din				(UART1_DIN),
 		.din_vld			(UART1_DIN_VLD),
 		.tx					(UART1_TX),
+		
 		// RX interface
 		.rx					(UART1_RX),
 		.dout				(UART1_DOUT),
@@ -55,11 +59,21 @@ module UART_TB #(
 	assign UART2_RX = UART1_TX;
 	
 	logic 					UART2_RFD;          	// request for data
-	logic 					UART2_DIN_VLD = 0;    	// valid signal of input data 
-	logic [DI_WIDTH-1:0] 	UART2_DIN = 0;        	// input data  
+	
 	logic [DO_WIDTH-1:0] 	UART2_DOUT;          	// output data
 	logic 					UART2_DOUT_VLD;       	// valid signal of output data
 	logic 					UART2_ERR;          	// error signal
+	
+`ifndef _DEBUG
+	logic 					UART2_DIN_VLD = 0;    	// valid signal of input data 
+	logic [DI_WIDTH-1:0] 	UART2_DIN = 0;        	// input data  
+`else
+	logic 					UART2_DIN_VLD;    	
+	logic [DI_WIDTH-1:0] 	UART2_DIN;
+	
+	assign UART2_DIN_VLD = UART2_DOUT_VLD;
+	assign UART2_DIN = UART2_DOUT;
+`endif
 	
 	UART #(
 		.CLK_FREQ			(CLK2_FREQ),
@@ -72,11 +86,13 @@ module UART_TB #(
 	) _UART2 (
 		.clk				(UART2_CLK),
 		.rst				(UART2_RST),
+		
 		// TX interface
 		.rfd				(UART2_RFD),
 		.din				(UART2_DIN),
 		.din_vld			(UART2_DIN_VLD),
 		.tx					(UART2_TX),
+		
 		// RX interface
 		.rx					(UART2_RX),
 		.dout				(UART2_DOUT),
@@ -90,15 +106,17 @@ module UART_TB #(
 	
 	always #3 UART1_RST = 1;
 	always #3 UART2_RST = 1;
-	
+
 	initial begin
 		@ (UART1_RFD) UART1_DIN_VLD = 1; UART1_DIN = 8'd100;
 		//@ (!UART1_RFD) UART1_DIN_VLD = 0; UART1_DIN = 8'd0;
     end
-  
+/*
+`ifndef _DEBUG 
 	initial begin
 		@ (UART2_RFD) UART2_DIN_VLD = 1; UART2_DIN = 8'd200;
 		//@ (!UART1_RFD) UART1_DIN_VLD = 0; UART1_DIN = 8'd0;
     end
-  
+`endif
+*/
 endmodule

@@ -12,7 +12,9 @@
 // Additional Comments: 
 //
 /********************************************************************************/
+//`define _DEBUG
 `timescale 1 ns/ 1 ns
+
 module UART #(
 	parameter 				CLK_FREQ = 100_000_000, 
 	parameter 				BAUD_RATE = 9_600, 
@@ -93,11 +95,17 @@ module UART #(
     end
 	
 // TX instance
-	
 	assign TX_CLK = clk;
 	assign TX_RST = rst;
+	
+`ifndef _DEBUG	
 	assign TX_DIN = din;
 	assign TX_DIN_VLD = din_vld;
+`else
+	assign TX_DIN = RX_DOUT;
+	assign TX_DIN_VLD = RX_DOUT_VLD;
+`endif
+
 	assign TX_BAUDCLK = BAUDCLK;
 	
 	UART_TX #(
@@ -118,7 +126,7 @@ module UART #(
 		.baudclk			(TX_BAUDCLK),
 		.rfd				(TX_RFD),
 		.tx					(TX_TX)
-		
+
 	);
 
 // RX instance 
