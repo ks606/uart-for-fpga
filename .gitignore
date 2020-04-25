@@ -1,0 +1,6 @@
+# folders
+sim
+!sim/src
+
+# files
+!sim/uart.tcl
